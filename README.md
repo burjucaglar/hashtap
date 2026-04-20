@@ -1,60 +1,167 @@
-# HashTap
+<div align="center">
 
-> Restoranlar için QR sipariş ve ödeme platformu.
-> Müşteri QR'ı okutur, telefondan sipariş verir, öder. Sipariş mutfağa, para doğrudan restoranın hesabına gider.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
+  <img src="docs/assets/logo.svg" alt="HashTap" width="300">
+</picture>
 
-## Ne yapıyoruz?
+### Restoranlar için QR sipariş ve ödeme platformu
 
-HashTap, restoranın mevcut iş akışını **değiştirmeden** çalışan bir sipariş kanalıdır. Garson hâlâ servisi yapar; biz yalnızca sipariş alma ve ödeme sürecini müşterinin telefonuna taşıyoruz.
+Müşteri QR okutur → telefonda menüden seçer → telefondan öder.<br/>
+Sipariş mutfağa, para doğrudan restoranın hesabına gider.
 
-- Müşteri: QR → menü → sepet → ödeme → fiş (e-posta)
-- Restoran: sipariş mevcut mutfak/bar yazıcısından fiş olarak düşer, ödeme restoranın merchant hesabına gider
-- Biz (HashTap): aradaki sipariş + ödeme + eşleştirme + e-Arşiv katmanı
+[![Durum](https://img.shields.io/badge/durum-Faz_1_iskelet-FF7A00?style=flat-square)](./docs/ROADMAP.md)
+[![Odoo](https://img.shields.io/badge/Odoo-17_CE-714B67?style=flat-square&logo=odoo&logoColor=white)](./docs/adr/0010-v17-lts.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)](./apps)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](./odoo-addons)
+[![Lisans](https://img.shields.io/badge/lisans-LGPLv3-1F1B2E?style=flat-square)](#lisans)
 
-Detaylı ürün ve iş planı: [docs/PRODUCT.md](./docs/PRODUCT.md)
-Roadmap: [docs/ROADMAP.md](./docs/ROADMAP.md)
-Mimari: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+[Ürün](./docs/PRODUCT.md) · [Yol haritası](./docs/ROADMAP.md) · [Mimari](./docs/ARCHITECTURE.md) · [Kurulum](./docs/DEV_SETUP.md) · [ADR'ler](./docs/adr/)
+
+</div>
+
+---
+
+## Ne yapıyor?
+
+HashTap, restoranın mevcut iş akışını **değiştirmeden** çalışan bir sipariş + ödeme kanalıdır. Garson hâlâ servisi yapar; QR'ı okutan müşteri sipariş vermek ve ödemek için garsonu beklemez. Ek donanım gerekmez.
+
+| Taraf | Dokunduğu |
+|---|---|
+| **Müşteri** | Telefonda PWA — QR → menü → sepet → 3DS ödeme → e-Arşiv fişi e-posta |
+| **Restoran** | Odoo native panel — siparişler, masa planı, menü editörü, rapor |
+| **HashTap (biz)** | Multi-tenant Odoo + gateway — kiracı provizyon, iyzico subMerchant, e-Arşiv orkestrasyon |
+
+## Mimari
+
+```mermaid
+flowchart LR
+    QR(["📱 QR"]) --> PWA["Customer PWA<br/>React + Vite"]
+    PWA <--> GW["Gateway<br/>Fastify · TS"]
+    GW <--> ODOO["Odoo 17 CE<br/>hashtap_pos + hashtap_theme"]
+    ODOO <--> DB[("PostgreSQL<br/>DB-per-tenant")]
+    ODOO <--> REDIS[("Redis<br/>queue_job")]
+    ODOO -->|3DS| IYZ["iyzico<br/>subMerchant"]
+    ODOO -->|fiş| EA["e-Arşiv<br/>Foriba"]
+    ODOO -->|KDS event| PB["print-bridge<br/>on-prem"]
+    STAFF(["👤 Çalışan"]) --> ODOO
+```
+
+Detaylı topoloji ve veri akışları: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+## Yığın
+
+| Katman | Teknoloji |
+|---|---|
+| İş mantığı | **Odoo 17 CE** (Python) — [`odoo-addons/hashtap_pos`](./odoo-addons/hashtap_pos) |
+| White-label | Odoo theme — [`odoo-addons/hashtap_theme`](./odoo-addons/hashtap_theme) |
+| Müşteri PWA | TypeScript · React · Vite — [`apps/customer-pwa`](./apps/customer-pwa) |
+| Gateway (BFF) | TypeScript · Fastify — [`apps/api`](./apps/api) |
+| Yazıcı ajanı | TypeScript · Node on-prem — [`apps/print-bridge`](./apps/print-bridge) |
+| POS adapter'ları | TypeScript — [`packages/pos-adapters`](./packages/pos-adapters) *(Segment B)* |
+| DB | PostgreSQL 16 (DB-per-tenant, [ADR-0006](./docs/adr/0006-db-per-tenant.md)) |
+| Async | `queue_job` (OCA) + Redis |
+| Ödeme | iyzico — facilitator / subMerchant, Checkout Form (PCI SAQ-A) |
+| e-Arşiv | Foriba (provider-agnostic arayüz) |
+| Altyapı | Hetzner Cloud · Docker Compose · Caddy · systemd |
+
+## Hızlı başlangıç
+
+Gereksinimler: Node.js ≥ 20, Docker Compose, npm ≥ 10.
+
+```sh
+git clone https://github.com/burjucaglar/hashtap.git
+cd hashtap
+npm install
+
+# Odoo + Postgres + Redis + MailHog
+docker compose -f infra/odoo/docker-compose.yml up -d
+
+# İlk DB'yi oluştur + modülleri yükle
+docker compose -f infra/odoo/docker-compose.yml exec odoo \
+  odoo -d demo -i hashtap_pos,hashtap_theme --stop-after-init
+
+# Gateway ve müşteri PWA watch modda
+npm run dev -w @hashtap/api
+npm run dev -w @hashtap/customer-pwa
+```
+
+- Odoo: <http://localhost:8069> (DB: `demo`, admin: `admin` / `admin`)
+- Gateway: <http://localhost:4000>
+- PWA: Vite'ın verdiği port
+- MailHog: <http://localhost:8025>
+
+Tam akış: [docs/DEV_SETUP.md](./docs/DEV_SETUP.md).
+
+## Durum ve yol haritası
+
+- [x] **Faz 0** — Monorepo iskeleti
+- [x] **Faz 1 · W1–W3** — Odoo + modül iskeleti, gateway BFF ← *buradayız*
+- [ ] **Faz 2 · W4–W5** — Menü modeli, masa yönetimi, QR üretimi
+- [ ] **Faz 3 · W6–W7** — Sipariş akışı + yaşam döngüsü
+- [ ] **Faz 4 · W8–W9** — iyzico 3DS entegrasyonu
+- [ ] **Faz 5 · W10–W11** — e-Arşiv (fail-close politikası)
+- [ ] **Faz 6 · W12** — Mutfak: `pos_restaurant` KDS + print-bridge
+- [ ] **Faz 7 · W13–W14** — POS adapter'ları (Segment B)
+- [ ] **Faz 8 · W15–W16** — Multi-tenant provizyon
+- [ ] **Faz 9 · W17–W18** — Pilot hazırlık
+- [ ] **Faz 10 · W19–W22** — Pilot
+
+Haftalık iş paketleri + çıkış kriterleri: [docs/ROADMAP.md](./docs/ROADMAP.md).
+
+## Dokümantasyon
+
+| Doküman | İçerik |
+|---|---|
+| [PRODUCT.md](./docs/PRODUCT.md) | Vizyon, müşteri segmentleri (A/B/C), ticari model, MVP kapsamı |
+| [ROADMAP.md](./docs/ROADMAP.md) | W1–W22 fazları, iş paketleri, çıkış kriterleri |
+| [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Topoloji, bileşen sorumlulukları, veri akışları, hata modları |
+| [MODULE_DESIGN.md](./docs/MODULE_DESIGN.md) | `hashtap_pos` iç yapısı — model, controller, servis |
+| [DATA_MODEL.md](./docs/DATA_MODEL.md) | Alan seviyesinde model tanımları, dış JSON şemaları |
+| [WHITE_LABEL.md](./docs/WHITE_LABEL.md) | Odoo markasının gizlenmesi — 13 override kategorisi |
+| [MULTI_TENANCY.md](./docs/MULTI_TENANCY.md) | DB-per-tenant, onboarding, izolasyon, yedek, upgrade |
+| [DEV_SETUP.md](./docs/DEV_SETUP.md) | Yerel geliştirme, tipik 4-terminal döngü, yaygın sorunlar |
+| [DEPLOYMENT.md](./docs/DEPLOYMENT.md) | Prod topoloji, CI/CD, monitoring, yedek, ölçek yolu |
+| [SECURITY.md](./docs/SECURITY.md) | Tehdit modeli, KVKK, PCI, RBAC, secret yönetimi |
+| [integrations/IYZICO.md](./docs/integrations/IYZICO.md) | Facilitator/subMerchant, 3DS akışı, Apple/Google Pay |
+| [integrations/E_ARSIV.md](./docs/integrations/E_ARSIV.md) | Fail-close politikası, Foriba, yeniden deneme stratejisi |
+| [integrations/POS_ADAPTERS.md](./docs/integrations/POS_ADAPTERS.md) | 6 adapter tipi, menü sahipliği, Segment B akışı |
+| [adr/](./docs/adr/) | Mimari karar kayıtları — monorepo, Odoo seçimi, v17, kurus tipi... |
 
 ## Repo yapısı
 
 ```
 hashtap/
 ├── odoo-addons/
-│   ├── hashtap_pos/            # iş mantığı: menü, sipariş, iyzico, e-Arşiv
-│   └── hashtap_theme/          # white-label (logo, renk, login, email)
+│   ├── hashtap_pos/        # iş mantığı: menü, sipariş, iyzico, e-Arşiv
+│   └── hashtap_theme/      # white-label: logo, renk, login, e-posta
 ├── apps/
-│   ├── customer-pwa/           # Müşteri PWA (QR → menü → ödeme)
-│   ├── api/                    # Gateway (Fastify thin BFF)
-│   └── print-bridge/           # On-prem: Raspberry Pi / ağ yazıcısı ajanı
+│   ├── customer-pwa/       # Müşteri PWA (React + Vite)
+│   ├── api/                # Gateway (Fastify thin BFF)
+│   └── print-bridge/       # On-prem: Raspberry Pi + ESC/POS
 ├── packages/
-│   ├── shared/                 # Ortak TS tipleri, şemalar, util
-│   └── pos-adapters/           # Segment B: SambaPOS, Adisyo, Local Agent vb.
+│   ├── shared/             # Ortak TS tipleri ve şemalar
+│   └── pos-adapters/       # Segment B: SambaPOS, Adisyo, Local Agent…
 ├── infra/
-│   ├── docker-compose.yml      # Dev: Postgres + Redis + Adminer
-│   └── odoo/
-│       └── docker-compose.yml  # Dev: Odoo 17 + Postgres + Redis
-└── docs/                       # PRODUCT, ROADMAP, ARCHITECTURE, ADR, vb.
+│   ├── odoo/               # Dev stack: Odoo 17 + Postgres + Redis
+│   └── docker-compose.yml  # Yardımcı dev DB + Adminer
+└── docs/                   # PRODUCT, ROADMAP, ARCHITECTURE, ADR, integrations
 ```
 
-Restoran paneli **Odoo native** (ADR-0009). Müşteri PWA TS/React'te kalır (ADR-0008). İş mantığı Python tarafında (Odoo), gateway araya thin BFF olarak giriyor.
+## Kararlar ve ilkeler
 
-## Geliştirme
+Öne çıkan kararlar ([docs/adr/](./docs/adr/) içinde tam liste):
 
-**Gereklilikler:** Node.js ≥ 20, Docker, npm ≥ 10, Python 3.11 (opsiyonel, modül debug için).
+- **[ADR-0004](./docs/adr/0004-odoo-base.md)** — Odoo 17 CE tabanı. Kendi ERP'mizi sıfırdan yazmıyoruz, çatalamıyoruz; modül + white-label yazıyoruz.
+- **[ADR-0005](./docs/adr/0005-module-not-fork.md)** — Modifikasyon hiyerarşisi: modül → inherit → override → monkey-patch (son çare) → core (yasak).
+- **[ADR-0006](./docs/adr/0006-db-per-tenant.md)** — DB-per-tenant. Odoo Online bunu 10+ yıldır 50K+ kiracıyla kanıtladı.
+- **[ADR-0008](./docs/adr/0008-customer-pwa-stays-ts.md)** — Müşteri PWA React'te kalır. Mobil UX kritik, Odoo bundle'ı fazla ağır.
+- **[ADR-0009](./docs/adr/0009-restaurant-dashboard-odoo-native.md)** — Restoran paneli Odoo native. Kutudan çıkan form/liste/kanban/rapor ayrıca React'te yazılmaz.
 
-Tam akış: [docs/DEV_SETUP.md](./docs/DEV_SETUP.md).
+## Katkı
 
-```bash
-npm install
-docker compose -f infra/odoo/docker-compose.yml up -d
-npm run dev -w @hashtap/api
-npm run dev -w @hashtap/customer-pwa
-```
-
-## Durum
-
-Faz 1 (Odoo + modül iskeleti). Detay: [docs/ROADMAP.md](./docs/ROADMAP.md).
+Bu aşamada kapalı geliştirme; dışarıdan PR alınmıyor. ROADMAP'e ulaşınca açacağız.
 
 ## Lisans
 
-Dahili proje. Odoo 17 Community Edition üzerinde inşa edilmiştir (LGPLv3).
+Odoo 17 Community Edition üzerinde inşa edilmiştir (LGPLv3). `odoo-addons/` altındaki HashTap modülleri LGPLv3 ile uyumlu. TS tarafının lisansı pilot sonrası netleştirilecek.
