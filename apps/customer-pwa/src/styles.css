@@ -1,11 +1,21 @@
-:root {
-  --hashtap-ink: #0b2545;
-  --hashtap-accent: #f4a261;
-  --hashtap-bg: #ffffff;
-  --hashtap-muted: #5a6a80;
-  font-family: system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-  color: var(--hashtap-ink);
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+
+  --color-canvas: #e9e8e3;
+  --color-ink: #1c1917;
+  --color-muted: #78716c;
+  --color-accent: #c2410c;
 }
 
-body { margin: 0; background: var(--hashtap-bg); }
-main { max-width: 720px; margin: 0 auto; padding: 1rem; }
+@layer base {
+  html,
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}

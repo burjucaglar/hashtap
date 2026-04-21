@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- restaurant.table form'una QR alanları ekle -->
+    <record id="view_restaurant_table_form_hashtap" model="ir.ui.view">
+        <field name="name">restaurant.table.form.hashtap</field>
+        <field name="model">restaurant.table</field>
+        <field name="inherit_id" ref="pos_restaurant.view_restaurant_table_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="HashTap QR">
+                    <field name="hashtap_qr_slug" readonly="1"/>
+                    <field name="hashtap_qr_url" widget="CopyClipboardChar"/>
+                    <field name="hashtap_enabled"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Ayrı bir masa listesi: HashTap menüsü altında QR görünür ayırarak -->
+    <record id="view_restaurant_table_tree_hashtap" model="ir.ui.view">
+        <field name="name">restaurant.table.tree.hashtap</field>
+        <field name="model">restaurant.table</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="floor_id"/>
+                <field name="hashtap_qr_slug"/>
+                <field name="hashtap_qr_url" optional="show"/>
+                <field name="hashtap_enabled"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_hashtap_tables" model="ir.actions.act_window">
+        <field name="name">Masalar (QR)</field>
+        <field name="res_model">restaurant.table</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_restaurant_table_tree_hashtap"/>
+    </record>
+
+    <menuitem id="menu_hashtap_operations_tables"
+              name="Masalar"
+              parent="menu_hashtap_operations"
+              action="action_hashtap_tables"
+              sequence="10"/>
+
+</odoo>

@@ -214,3 +214,25 @@ iyzico subMerchant modunda settlement (restoran hesabına yatış):
 - iyzico Apple Pay için HashTap'in master merchant'ı mı yoksa subMerchant Apple Pay mi? — iyzico satış ekibiyle netleşsin.
 - Facilitator fee yasal çerçeve: Hukuki görüş alınmalı. MVP pilot aşamasında fee=0 ile başlamak seçeneği.
 - Currency conversion: Turist kart kullanırsa TRY → EUR conversion iyzico'da otomatik mi? Araştırılmalı.
+
+## 11. Uygulama notu — adapter pattern (Faz 4 çıktısı)
+
+Kod `odoo-addons/hashtap_pos/adapters/` altında, sağlayıcı-bağımsız
+arayüz:
+
+```
+adapters/
+├── base.py        # BasePaymentAdapter, InitPaymentRequest/Result, CallbackResult
+├── registry.py    # get_adapter(code) → adapter instance
+├── mock.py        # dev/test için deterministik adapter (stub 3DS akışı)
+└── iyzico.py      # gerçek iyzico entegrasyonu (iyzipay SDK ile)
+```
+
+- Controller (`controllers/payment.py`) her zaman `registry.get_adapter(...)`
+  üzerinden konuşur; iyzico bağımlılığı sızmaz.
+- Seçim `hashtap.payment.provider` modelindeki `code` alanıyla yapılır —
+  varsayılan `mock`, prod kiracıda `iyzico`.
+- Callback URL formatı: `/hashtap/payment/callback/<provider_code>?token=<provider_ref>`.
+  Stub modunu tetikleyen `&stub=1` query parametresi sadece mock adapter'da
+  anlamlıdır (bir bug'dan çıkardığımız ders: query string inşa ederken
+  sabit `?` yerine koşullu `&/?` kullan).

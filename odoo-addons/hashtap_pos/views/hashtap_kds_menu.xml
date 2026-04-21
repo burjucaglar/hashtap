@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- KDS linki: Operasyon menüsünden tam ekran sayfaya açılır. -->
+    <record id="action_hashtap_kds" model="ir.actions.act_url">
+        <field name="name">Mutfak Ekranı (KDS)</field>
+        <field name="url">/hashtap/kds</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_hashtap_kds"
+              name="Mutfak Ekranı"
+              parent="menu_hashtap_operations"
+              action="action_hashtap_kds"
+              sequence="5"/>
+
+</odoo>

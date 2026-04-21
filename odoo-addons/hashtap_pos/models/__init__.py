@@ -1,2 +1,13 @@
-# Models will be added as features land. Kept empty so the module can be
-# installed with only the controller + menu root scaffold.
+from . import hashtap_allergen
+from . import hashtap_modifier_group
+from . import hashtap_modifier
+from . import hashtap_menu_category
+from . import hashtap_menu_item
+from . import hashtap_table_qr
+from . import hashtap_payment_provider
+from . import hashtap_payment_method
+from . import hashtap_payment_transaction
+from . import hashtap_earsiv_provider
+from . import hashtap_earsiv_receipt
+from . import hashtap_order
+from . import hashtap_pos_order

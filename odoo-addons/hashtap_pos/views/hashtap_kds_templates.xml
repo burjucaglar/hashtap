@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================= -->
+    <!-- KDS (Kitchen Display) — tam ekran, tarayıcıda çalışan panel   -->
+    <!-- ============================================================= -->
+    <template id="kds_page" name="HashTap KDS">
+        <html lang="tr">
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>HashTap Mutfak</title>
+            <link rel="stylesheet" type="text/css"
+                  href="/hashtap_pos/static/src/css/kds.css"/>
+        </head>
+        <body class="kds-body">
+            <header class="kds-header">
+                <div class="kds-brand">
+                    <span class="kds-logo">HashTap</span>
+                    <span class="kds-sub">Mutfak</span>
+                </div>
+                <div class="kds-clock" id="kds-clock">--:--</div>
+                <div class="kds-status">
+                    <span class="kds-dot" id="kds-status-dot"></span>
+                    <span id="kds-status-text">Bağlanıyor…</span>
+                </div>
+            </header>
+
+            <main class="kds-columns">
+                <section class="kds-col kds-col-new">
+                    <h2>Yeni <span class="kds-count" id="count-new">0</span></h2>
+                    <div class="kds-col-body" id="col-new"></div>
+                </section>
+                <section class="kds-col kds-col-preparing">
+                    <h2>Hazırlanıyor <span class="kds-count" id="count-preparing">0</span></h2>
+                    <div class="kds-col-body" id="col-preparing"></div>
+                </section>
+                <section class="kds-col kds-col-ready">
+                    <h2>Hazır <span class="kds-count" id="count-ready">0</span></h2>
+                    <div class="kds-col-body" id="col-ready"></div>
+                </section>
+            </main>
+
+            <script type="text/javascript"
+                    src="/hashtap_pos/static/src/js/kds.js"/>
+        </body>
+        </html>
+    </template>
+
+</odoo>

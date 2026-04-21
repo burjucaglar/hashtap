@@ -22,7 +22,10 @@ services:
       retries: 10
 
   odoo:
-    image: odoo:17
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hashtap/odoo:17
     restart: unless-stopped
     depends_on:
       odoo-db:
@@ -35,7 +38,6 @@ services:
       odoo
       --dev=all
       --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
-      --db-filter=^%d$$
     volumes:
       - ../../odoo-addons:/mnt/extra-addons
       - odoo_data:/var/lib/odoo
@@ -51,7 +53,7 @@ services:
       - odoo_redis:/data
 
   mailhog:
-    image: mailhog/mailhog:v1.0.1
+    image: axllent/mailpit:latest
     restart: unless-stopped
     ports:
       - "8025:8025"  # web UI

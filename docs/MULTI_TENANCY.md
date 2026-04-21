@@ -30,7 +30,7 @@ MVP'de 10–50 kiracı hedefliyoruz. Bu ölçekte DB-per-tenant'ın dezavantajla
 
 ```
                    ┌────────────────┐
-                   │  DNS wildcard  │  *.hashtap.co → load balancer
+                   │  DNS wildcard  │  *.example.com → load balancer
                    │  + ACME TLS    │
                    └────────┬───────┘
                             │
@@ -45,7 +45,7 @@ MVP'de 10–50 kiracı hedefliyoruz. Bu ölçekte DB-per-tenant'ın dezavantajla
    ┌───────────────┐              ┌───────────────────────┐
    │  Gateway API  │              │  Odoo router          │
    │  (TS/Fastify) │              │  (Odoo'nun nginx.conf)│
-   │  r.hashtap.co │              │  <tenant>.hashtap.co  │
+   │  r.example.com │              │  <tenant>.example.com  │
    └───────┬───────┘              └────────────┬──────────┘
            │                                   │
            │ tenant registry                   │ Odoo native routing
@@ -67,8 +67,8 @@ MVP'de 10–50 kiracı hedefliyoruz. Bu ölçekte DB-per-tenant'ın dezavantajla
 ```
 
 ### Subdomain ayrımı
-- `sirket.hashtap.co` → restoran paneli (Odoo web client, white-label).
-- `r.hashtap.co/<tenant_slug>/<table_slug>` → müşteri PWA (tek domain, path'te tenant).
+- `sirket.example.com` → restoran paneli (Odoo web client, white-label).
+- `r.example.com/<tenant_slug>/<table_slug>` → müşteri PWA (tek domain, path'te tenant).
 
 Müşteri PWA'nın tek domain'de toplanmasının sebebi: cache, service worker, ve "bir restoran bir subdomain kapatır" riskini azaltma.
 
@@ -106,8 +106,8 @@ Gateway'in tenant-service'i sırayla:
 5. **Gerekli modülleri yükle.** `hashtap_pos`, `hashtap_theme`, `queue_job`, ilgili Odoo modülleri. CLI: `odoo -d tenant_<slug> -i hashtap_pos -i hashtap_theme --stop-after-init`.
 6. **Başlangıç verisi.** Ülke=TR, para=TRY, dil=TR+EN, default allergen listesi, default KDV oranları.
 7. **iyzico subMerchant** (iyzico sandbox'ta veya prod'da) — restoran adına, gateway iyzico'ya CRUD eder.
-8. **DNS kaydı.** `sirket.hashtap.co` CNAME → load balancer. Wildcard DNS varsa bu adım no-op.
-9. **TLS sertifikası.** ACME cert-manager wildcard (`*.hashtap.co`) varsa no-op; yoksa per-host SAN.
+8. **DNS kaydı.** `sirket.example.com` CNAME → load balancer. Wildcard DNS varsa bu adım no-op.
+9. **TLS sertifikası.** ACME cert-manager wildcard (`*.example.com`) varsa no-op; yoksa per-host SAN.
 10. **Welcome e-posta.** Restoran sahibine giriş URL'i + geçici şifre.
 11. **Tenant registry.** Durum `active`.
 
@@ -180,7 +180,7 @@ Tenant registry'nin kendisi **tek DB'li** — kiracı-izolasyonuna tabi değil. 
 
 ### 5.1 Test senaryoları (her release'te)
 - Kiracı A'nın admin'i kiracı B'nin herhangi bir endpoint'ine istek atar → 403/404.
-- Kiracı A'nın PWA'sı `Host: b.hashtap.co` header spoof'u yaparsa gateway reddeder (çünkü slug path'ten geliyor ve registry'de tenant-host çifti doğrulanır).
+- Kiracı A'nın PWA'sı `Host: b.example.com` header spoof'u yaparsa gateway reddeder (çünkü slug path'ten geliyor ve registry'de tenant-host çifti doğrulanır).
 - SQL injection testi: kiracı A'nın menü endpoint'ine `' OR 1=1 --` ile yönelir → ORM parametrize ettiği için no-op, yine de integration test'le doğrulanır.
 - `pg_class` / system catalog erişimi: Odoo user role'ü PUBLIC schema dışında yetkisiz.
 

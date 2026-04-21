@@ -2,6 +2,31 @@
 
 Bu doküman `hashtap_pos` modülünün tanımladığı ve genişlettiği veri modellerini alan seviyesinde tanımlar. Odoo ORM kavramları (`fields.Char`, `Many2one`, `One2many`, `Selection`) kullanılır.
 
+> **Güncel uygulama 2026-04-21.** §2.7 "`pos.order` extension" taslağı
+> yerine **ayrı bir `hashtap.order` modeli** kullanılıyor; QR akışını
+> Odoo kasa akışından bağımsız tuttuk. Gerçek alan listesi:
+>
+> | Alan | Tip | Not |
+> |---|---|---|
+> | `state` | Selection | `placed / paid / kitchen_sent / preparing / ready / served / cancelled` — KDS orthogonal eksen. |
+> | `payment_state` | Selection | `unpaid / pending / paid / failed / refunded`. |
+> | `earsiv_state` | Selection | `not_required / pending / issued / failed`. |
+> | `kitchen_fired_at`, `ready_at` | Datetime | KDS zamanlaması. |
+> | `is_earsiv_blocked` | Boolean (computed) | Fail-close; True iken mutfak aksiyonu `ValidationError` atar. |
+> | `pos_order_id` | Many2one pos.order | Opsiyonel köprü (muhasebe için gerektiğinde tetiklenir). |
+>
+> `hashtap.order.line` ayrı model — `item_name`, `quantity`,
+> `unit_price_kurus`, `modifier_ids` (Many2many `hashtap.modifier`),
+> `modifier_total_kurus`, `note`, `subtotal_kurus`.
+>
+> `hashtap.iyzico.transaction` → **`hashtap.payment.transaction`** olarak
+> isimlendirildi (provider-agnostic; `hashtap.payment.provider` kaydı
+> adapter code'unu tutar). e-Arşiv tarafında da `hashtap.earsiv.provider`
+> kaydı sağlayıcı seçimini yapar. Detay: `docs/STATUS.md` §2.
+>
+> Aşağıdaki §2.7 ve §2.8 planlama dokümanıdır; uygulama güncel alanlar
+> için yukarıdaki tabloya bakın.
+
 ## 1. Tasarım prensipleri
 
 1. **Odoo'nun mevcut modellerini genişlet, kopyalama.** Ürün `product.template`'tır; HashTap'in menu item'ı `product.template`'a FK verir. Fiyatı `list_price`'tan alır.
@@ -104,7 +129,7 @@ Odoo'nun `pos_restaurant` modülündeki `restaurant.table`'a alan ekliyoruz.
 | Yeni alan | Tip | Açıklama |
 |---|---|---|
 | `hashtap_qr_slug` | `Char(size=32, index=True)` | URL-safe rastgele string; masa yaratılırken computed |
-| `hashtap_qr_url` | `Char (computed)` | `https://r.hashtap.co/<tenant>/<qr_slug>` |
+| `hashtap_qr_url` | `Char (computed)` | `https://r.example.com/<tenant>/<qr_slug>` |
 | `hashtap_qr_image` | `Binary (computed)` | QR kodunun PNG'si |
 | `hashtap_enabled` | `Boolean default=True` | QR akışını bu masa için kapatma |
 

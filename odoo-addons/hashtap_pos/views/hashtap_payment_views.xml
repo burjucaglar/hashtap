@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================= -->
+    <!-- Provider                                                       -->
+    <!-- ============================================================= -->
+    <record id="view_hashtap_payment_provider_tree" model="ir.ui.view">
+        <field name="name">hashtap.payment.provider.tree</field>
+        <field name="model">hashtap.payment.provider</field>
+        <field name="arch" type="xml">
+            <tree string="Ödeme Sağlayıcıları">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="sandbox"/>
+                <field name="active"/>
+                <field name="transaction_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_payment_provider_form" model="ir.ui.view">
+        <field name="name">hashtap.payment.provider.form</field>
+        <field name="model">hashtap.payment.provider</field>
+        <field name="arch" type="xml">
+            <form string="Ödeme Sağlayıcı">
+                <header>
+                    <button name="action_view_transactions" type="object"
+                            string="İşlemleri Gör" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="iyzico (Canlı)"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="sandbox"/>
+                            <field name="active"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="base_url" placeholder="https://sandbox-api.iyzipay.com"/>
+                            <field name="transaction_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kimlik Bilgileri">
+                            <group>
+                                <field name="api_key" password="True"/>
+                                <field name="api_secret" password="True"/>
+                                <field name="sub_merchant_key"/>
+                                <field name="webhook_secret" password="True"/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <p><b>Not:</b> API anahtarları şirket sahibi / sistem yöneticisi tarafından
+                                iyzico panelinden alınır. Test için <b>Sandbox</b>'ı açık bırakın;
+                                anahtarlar doldurulmasa bile dev akışı <i>mock</i> yanıtlar ile çalışır.</p>
+                            </div>
+                        </page>
+                        <page string="Ödeme Yöntemleri">
+                            <field name="method_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="icon"/>
+                                    <field name="min_amount_kurus"/>
+                                    <field name="active"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_payment_provider" model="ir.actions.act_window">
+        <field name="name">Ödeme Sağlayıcıları</field>
+        <field name="res_model">hashtap.payment.provider</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Method                                                         -->
+    <!-- ============================================================= -->
+    <record id="view_hashtap_payment_method_tree" model="ir.ui.view">
+        <field name="name">hashtap.payment.method.tree</field>
+        <field name="model">hashtap.payment.method</field>
+        <field name="arch" type="xml">
+            <tree string="Ödeme Yöntemleri" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="provider_id"/>
+                <field name="icon"/>
+                <field name="min_amount_kurus"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_hashtap_payment_method" model="ir.actions.act_window">
+        <field name="name">Ödeme Yöntemleri</field>
+        <field name="res_model">hashtap.payment.method</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Transaction                                                    -->
+    <!-- ============================================================= -->
+    <record id="view_hashtap_payment_tx_tree" model="ir.ui.view">
+        <field name="name">hashtap.payment.transaction.tree</field>
+        <field name="model">hashtap.payment.transaction</field>
+        <field name="arch" type="xml">
+            <tree string="Ödeme İşlemleri" create="false">
+                <field name="name"/>
+                <field name="create_date"/>
+                <field name="order_id"/>
+                <field name="provider_id"/>
+                <field name="method_code"/>
+                <field name="amount_kurus"/>
+                <field name="currency"/>
+                <field name="state" decoration-success="state == 'captured'"
+                       decoration-warning="state == 'pending'"
+                       decoration-danger="state in ('failed', 'cancelled')"/>
+                <field name="provider_ref"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_payment_tx_form" model="ir.ui.view">
+        <field name="name">hashtap.payment.transaction.form</field>
+        <field name="model">hashtap.payment.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Ödeme İşlemi" create="false">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,authorized,captured,failed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="provider_id"/>
+                            <field name="method_code"/>
+                            <field name="amount_kurus"/>
+                            <field name="currency"/>
+                        </group>
+                        <group>
+                            <field name="provider_ref"/>
+                            <field name="conversation_id"/>
+                            <field name="idempotency_key"/>
+                            <field name="threeds_redirect_url" widget="url"/>
+                            <field name="error_code"/>
+                            <field name="error_message"/>
+                        </group>
+                    </group>
+                    <notebook groups="base.group_system">
+                        <page string="İstek">
+                            <field name="raw_request" widget="text"/>
+                        </page>
+                        <page string="Yanıt">
+                            <field name="raw_response" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_payment_tx" model="ir.actions.act_window">
+        <field name="name">Ödeme İşlemleri</field>
+        <field name="res_model">hashtap.payment.transaction</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Menu                                                           -->
+    <!-- ============================================================= -->
+    <menuitem id="menu_hashtap_payment_root"
+              name="Ödeme"
+              parent="menu_hashtap_settings"
+              sequence="30"/>
+    <menuitem id="menu_hashtap_payment_provider"
+              name="Sağlayıcılar"
+              parent="menu_hashtap_payment_root"
+              action="action_hashtap_payment_provider"
+              sequence="10"/>
+    <menuitem id="menu_hashtap_payment_method"
+              name="Yöntemler"
+              parent="menu_hashtap_payment_root"
+              action="action_hashtap_payment_method"
+              sequence="20"/>
+    <menuitem id="menu_hashtap_payment_tx"
+              name="İşlemler"
+              parent="menu_hashtap_operations"
+              action="action_hashtap_payment_tx"
+              sequence="50"/>
+
+</odoo>

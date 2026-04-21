@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================= -->
+    <!-- e-Arşiv Provider                                                -->
+    <!-- ============================================================= -->
+    <record id="view_hashtap_earsiv_provider_tree" model="ir.ui.view">
+        <field name="name">hashtap.earsiv.provider.tree</field>
+        <field name="model">hashtap.earsiv.provider</field>
+        <field name="arch" type="xml">
+            <tree string="e-Arşiv Sağlayıcıları">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="sandbox"/>
+                <field name="active"/>
+                <field name="receipt_count"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_earsiv_provider_form" model="ir.ui.view">
+        <field name="name">hashtap.earsiv.provider.form</field>
+        <field name="model">hashtap.earsiv.provider</field>
+        <field name="arch" type="xml">
+            <form string="e-Arşiv Sağlayıcı">
+                <header>
+                    <button name="action_view_receipts" type="object"
+                            string="Fişleri Gör" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Foriba (Sandbox)"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="sandbox"/>
+                            <field name="active"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="seller_vkn"/>
+                            <field name="base_url" placeholder="https://efatura-test.foriba.com"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kimlik Bilgileri">
+                            <group>
+                                <field name="api_key"/>
+                                <field name="api_secret" password="True"/>
+                                <field name="api_username"/>
+                                <field name="api_password" password="True"/>
+                                <field name="webhook_secret" password="True"/>
+                            </group>
+                        </page>
+                        <page string="Mock / Chaos"
+                              invisible="code != 'mock'">
+                            <group>
+                                <field name="mock_fail_rate"
+                                       help="0 = hep başarılı, 100 = hep fail"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_earsiv_provider" model="ir.actions.act_window">
+        <field name="name">e-Arşiv Sağlayıcıları</field>
+        <field name="res_model">hashtap.earsiv.provider</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Receipt                                                         -->
+    <!-- ============================================================= -->
+    <record id="view_hashtap_earsiv_receipt_tree" model="ir.ui.view">
+        <field name="name">hashtap.earsiv.receipt.tree</field>
+        <field name="model">hashtap.earsiv.receipt</field>
+        <field name="arch" type="xml">
+            <tree string="e-Arşiv Fişleri"
+                  decoration-success="state == 'issued'"
+                  decoration-danger="state == 'failed'"
+                  decoration-muted="state in ('cancelled', 'draft')">
+                <field name="name"/>
+                <field name="order_id"/>
+                <field name="provider_id"/>
+                <field name="state"/>
+                <field name="ettn"/>
+                <field name="amount_kurus"/>
+                <field name="retry_count"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_earsiv_receipt_form" model="ir.ui.view">
+        <field name="name">hashtap.earsiv.receipt.form</field>
+        <field name="model">hashtap.earsiv.receipt</field>
+        <field name="arch" type="xml">
+            <form string="e-Arşiv Fişi">
+                <header>
+                    <button name="action_retry" type="object"
+                            string="Yeniden Dene" class="oe_highlight"
+                            invisible="state == 'issued'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,issued"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="provider_id"/>
+                            <field name="ettn"/>
+                            <field name="issued_at"/>
+                        </group>
+                        <group>
+                            <field name="amount_kurus"/>
+                            <field name="currency"/>
+                            <field name="retry_count"/>
+                            <field name="retryable"/>
+                        </group>
+                    </group>
+                    <group string="Hata"
+                           invisible="state != 'failed'">
+                        <field name="error_code"/>
+                        <field name="error_message"/>
+                    </group>
+                    <group string="Belge">
+                        <field name="pdf_url" widget="url"/>
+                        <field name="qr_content"/>
+                    </group>
+                    <notebook>
+                        <page string="Yanıt">
+                            <field name="raw_response" widget="text"/>
+                        </page>
+                        <page string="İstek">
+                            <field name="raw_request" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_earsiv_receipt" model="ir.actions.act_window">
+        <field name="name">e-Arşiv Fişleri</field>
+        <field name="res_model">hashtap.earsiv.receipt</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_hashtap_earsiv_receipt_failed" model="ir.actions.act_window">
+        <field name="name">Başarısız Fişler</field>
+        <field name="res_model">hashtap.earsiv.receipt</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'failed')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Başarısız fiş yok — e-Arşiv akışı sağlıklı.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================================= -->
+    <!-- Menu                                                            -->
+    <!-- ============================================================= -->
+    <menuitem id="menu_hashtap_earsiv_root"
+              name="e-Arşiv"
+              parent="menu_hashtap_settings"
+              sequence="40"/>
+    <menuitem id="menu_hashtap_earsiv_provider"
+              name="Sağlayıcılar"
+              parent="menu_hashtap_earsiv_root"
+              action="action_hashtap_earsiv_provider"
+              sequence="10"/>
+    <menuitem id="menu_hashtap_earsiv_receipt"
+              name="Fişler"
+              parent="menu_hashtap_operations"
+              action="action_hashtap_earsiv_receipt"
+              sequence="60"/>
+    <menuitem id="menu_hashtap_earsiv_failed"
+              name="Başarısız Fişler"
+              parent="menu_hashtap_operations"
+              action="action_hashtap_earsiv_receipt_failed"
+              sequence="70"/>
+
+</odoo>

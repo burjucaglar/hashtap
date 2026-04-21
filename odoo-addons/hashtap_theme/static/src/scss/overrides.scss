@@ -1,11 +1,121 @@
-@import "./variables";
+// HashTap backend override'ları — Odoo'nun kendi Bootstrap/OWL yapılarına
+// binerek marka tutarlı bir görünüm verir. Sadece görsel; iş mantığına
+// dokunmaz.
 
-// Navbar brand placeholder — logo dosyası eklenene kadar metin olarak gösteriyoruz.
-.o_hashtap_navbar {
-  .o_main_navbar_title::before {
+// ------- Global ----------------------------------------------------------
+body.o_web_client,
+.o_action_manager {
+    background-color: $hashtap-bg !important;
+    font-family: $hashtap-font;
+}
+
+// ------- Top navbar ------------------------------------------------------
+.o_main_navbar {
+    background: $hashtap-ink !important;
+    border-bottom: 2px solid $hashtap-accent !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+    .o_navbar_apps_menu,
+    .o_menu_sections > .o_nav_entry,
+    .o_menu_sections .dropdown-toggle {
+        color: #f3eadd !important;
+        font-weight: 500;
+
+        &:hover,
+        &.show {
+            background: rgba(255,255,255,0.06) !important;
+            color: $hashtap-accent !important;
+        }
+    }
+
+    // Odoo'nun "O" app switcher ikonu yerine HashTap "#" ikonu
+    .o_menu_toggle,
+    .o_navbar_apps_menu > a::before {
+        content: "" !important;
+        background-image: url("/hashtap_theme/static/src/img/logo-mark.svg");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        width: 28px; height: 28px;
+        display: inline-block;
+        filter: brightness(1.1);
+    }
+}
+
+// HashTap brand — navbar başlığı önüne logo
+.o_main_navbar::before {
     content: "HashTap";
-    font-weight: 700;
     color: $hashtap-accent;
-    margin-right: 0.5rem;
-  }
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+}
+
+// ------- Butonlar --------------------------------------------------------
+.btn-primary,
+.o_form_button_save {
+    background-color: $hashtap-accent !important;
+    border-color: $hashtap-accent !important;
+    color: #fff !important;
+
+    &:hover, &:focus, &:active {
+        background-color: $hashtap-accent-dark !important;
+        border-color: $hashtap-accent-dark !important;
+    }
+}
+
+.btn-link {
+    color: $hashtap-accent !important;
+    &:hover { color: $hashtap-accent-dark !important; }
+}
+
+a { color: $hashtap-accent; }
+a:hover { color: $hashtap-accent-dark; }
+
+// ------- Form & panel ----------------------------------------------------
+.o_form_view .o_form_sheet_bg,
+.o_content {
+    background-color: $hashtap-bg !important;
+}
+
+.o_form_sheet {
+    background: $hashtap-panel !important;
+    border: 1px solid $hashtap-border !important;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(31, 27, 46, 0.04);
+}
+
+// ------- Status bar ------------------------------------------------------
+.o_statusbar_status button.o_arrow_button_current,
+.o_statusbar_status button.btn-primary {
+    background-color: $hashtap-accent !important;
+    border-color: $hashtap-accent !important;
+}
+
+// ------- Tag / chip ------------------------------------------------------
+.o_tag.o_tag_color_0 {
+    background-color: $hashtap-accent-soft;
+    color: $hashtap-ink;
+}
+
+// ------- "Powered by Odoo" ve Odoo linklerini gizle ----------------------
+a[href*="odoo.com"],
+.o_footer_link,
+.o_debug_manager .fa-bug + span {
+    display: none !important;
+}
+
+// Discuss (Odoo'nun chat paneli) kullanılmıyor — tamamen gizleme değil
+// ama ikonunu pastel yap
+.o_menu_systray .o_mail_systray_item {
+    opacity: 0.55;
+}
+
+// ------- Login input focus --------------------------------------------
+.form-control:focus {
+    border-color: $hashtap-accent !important;
+    box-shadow: 0 0 0 3px $hashtap-accent-soft !important;
 }

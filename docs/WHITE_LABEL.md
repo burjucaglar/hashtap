@@ -40,7 +40,7 @@ Son kullanıcı (restoran sahibi, personeli) "HashTap POS kullanıyorum" der. "O
 
 ### 3.5 E-posta şablonları
 - Odoo'nun "Please update your browser..." gibi sistem mail'leri HashTap branded şablonlara override edilir.
-- Varsayılan gönderen: `no-reply@hashtap.co`.
+- Varsayılan gönderen: `no-reply@example.com`.
 - Footer: HashTap adresi, telefon, destek maili.
 
 ### 3.6 Hata sayfaları
@@ -72,50 +72,62 @@ Son kullanıcı (restoran sahibi, personeli) "HashTap POS kullanıyorum" der. "O
 
 ## 4. Modüldeki davranışın haritası
 
-`hashtap_theme` içindeki dosyalar ve ne override ettikleri:
+`hashtap_theme` içindeki dosyalar ve ne override ettikleri (güncel —
+2026-04-21 itibarıyla):
 
 ```
 hashtap_theme/
-├── __manifest__.py
-├── data/
-│   ├── ir_config_parameter.xml    # web.base.title, login branding
-│   └── mail_template_data.xml     # sistem mail'leri
+├── __manifest__.py                 # web.assets_backend + web.assets_frontend bundle
 ├── views/
-│   ├── webclient_templates.xml    # navbar, loading, favicon
-│   ├── login_templates.xml        # /web/login override
-│   ├── layout_templates.xml       # PDF layout
-│   └── menu_cleanup.xml           # gereksiz root menüleri gizle
+│   ├── webclient_templates.xml     # <title> → "HashTap"
+│   └── login_templates.xml         # (bilinçli boş — aşağıdaki 4.1'e bakın)
 ├── static/
-│   ├── src/
-│   │   ├── scss/
-│   │   │   ├── _variables.scss    # renk paleti
-│   │   │   └── overrides.scss     # component-level stil
-│   │   └── img/
-│   │       ├── logo.svg
-│   │       ├── logo_small.svg
-│   │       ├── favicon.ico
-│   │       └── login_bg.jpg
-│   └── description/
-│       └── icon.png
-└── security/
-    └── ir.model.access.csv
+│   └── src/
+│       ├── scss/
+│       │   ├── _variables.scss     # HashTap palet: $hashtap-accent=#ff7a00, ink, cream bg
+│       │   ├── overrides.scss      # backend: navbar, buton, form, odoo.com link gizle
+│       │   └── login.scss          # /web/login, /web/signup, /web/reset_password
+│       └── img/
+│           └── logo.svg            # login form background + menü ikonu
 ```
+
+### 4.1 Odoo 17 view inheritance whitelist — önemli kısıt
+
+Odoo 17 CE'de `<xpath expr="...">` ile inherit edilen view'larda xpath
+selector'ı sadece `@id`, `@name`, `@class`, `@string` ve `position`
+özniteliklerini kabul eder. Bu yüzden:
+
+- **Favicon** (`<link rel=... href=...>`): `@rel`/`@href` whitelist'te yok.
+  Xpath ile değiştirilemez. Çözüm: **şirket logosunu HashTap logosu yap**
+  (Ayarlar → Şirketler) — Odoo favicon'u otomatik şirket logosundan türetir.
+- **Login logosu** (`<img alt="Logo">`): `@alt` whitelist'te yok. Çözüm:
+  login template'i inherit etmek yerine **CSS** ile logoyu enjekte et —
+  `.oe_login_form { background-image: url(.../logo.svg) }` ile
+  `login.scss`'de yapılıyor. Böylece XML inheritance hiç devreye girmiyor.
+- **"Powered by Odoo" footer link'leri**: CSS ile `display: none`
+  (`a[href*="odoo.com"]`) — whitelist kısıtı CSS'e uygulanmıyor, basit.
+
+Özetle: **mümkün olduğunca CSS ile markala.** XML inheritance'ı sadece
+whitelist'in izin verdiği noktalarda (title, menu gizleme) kullan.
 
 ## 5. Manuel kontrol listesi (test için)
 
 Her major sürüm yükseltmesinden sonra aşağıdaki liste manuel koşulur. Otomasyon faz 3+ işi (Playwright snapshot test).
 
-- [ ] `/` açıldı → HashTap logosu, "Odoo" yok.
-- [ ] Login oldu → app switcher'da Odoo yazmayan sadece HashTap modülleri.
-- [ ] Bir sipariş aç → PDF fiş HashTap branded.
-- [ ] Şifremi unuttum e-postası → HashTap branded.
-- [ ] 404 sayfası → HashTap branded.
-- [ ] Help menüsü → "HashTap Hakkında" var, "About Odoo" yok.
-- [ ] Favicon HashTap.
-- [ ] Tarayıcı sekme başlığı HashTap ile başlıyor.
+**Durum 2026-04-21:** `[x]` faz 7.5'te yapıldı, `[ ]` ileri fazlarda.
+
+- [x] `/web/login` açıldı → HashTap logosu (CSS background) ve tagline, "Odoo" yok.
+- [x] Tarayıcı sekme başlığı "HashTap" ile başlıyor.
+- [x] Backend navbar HashTap mor + turuncu vurgu.
+- [x] "Powered by Odoo" footer link'leri gizli.
+- [ ] App switcher'da yalnızca HashTap modülleri (faz 8'de `ir.ui.menu` temizliği).
+- [ ] PDF fiş HashTap branded (faz 9'da `report.internal.layout` override).
+- [ ] Şifremi unuttum / sistem e-postaları HashTap branded (faz 8+).
+- [ ] 404/500 sayfası HashTap branded (faz 9'da).
+- [ ] Help menüsü → "HashTap Hakkında" (faz 8'de).
+- [ ] Favicon HashTap (şirket logosu seed edilince otomatik).
 - [ ] HTML kaynağı: `<meta generator content="Odoo">` etiketi yok.
-- [ ] Network tab: `/web/static/src/img/logo.png` isteği 404 değil (bizim logomuz).
-- [ ] Hatalı URL → Odoo'nun debug sayfasına değil, bizim 500'e düşüyor.
+- [ ] Hatalı URL → Odoo debug sayfasına değil, bizim 500'e düşüyor (`debug=False` + custom error handler).
 
 ## 6. Saklanmasında ısrar etmediğimiz yerler
 

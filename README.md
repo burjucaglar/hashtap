@@ -10,13 +10,13 @@
 Müşteri QR okutur → telefonda menüden seçer → telefondan öder.<br/>
 Sipariş mutfağa, para doğrudan restoranın hesabına gider.
 
-[![Durum](https://img.shields.io/badge/durum-Faz_1_iskelet-FF7A00?style=flat-square)](./docs/ROADMAP.md)
+[![Durum](https://img.shields.io/badge/durum-Faz_6a_KDS-FF7A00?style=flat-square)](./docs/STATUS.md)
 [![Odoo](https://img.shields.io/badge/Odoo-17_CE-714B67?style=flat-square&logo=odoo&logoColor=white)](./docs/adr/0010-v17-lts.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)](./apps)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](./odoo-addons)
 [![Lisans](https://img.shields.io/badge/lisans-LGPLv3-1F1B2E?style=flat-square)](#lisans)
 
-[Ürün](./docs/PRODUCT.md) · [Yol haritası](./docs/ROADMAP.md) · [Mimari](./docs/ARCHITECTURE.md) · [Kurulum](./docs/DEV_SETUP.md) · [ADR'ler](./docs/adr/)
+[Ürün](./docs/PRODUCT.md) · [Durum](./docs/STATUS.md) · [Yol haritası](./docs/ROADMAP.md) · [Mimari](./docs/ARCHITECTURE.md) · [Kurulum](./docs/DEV_SETUP.md) · [ADR'ler](./docs/adr/)
 
 </div>
 
@@ -96,25 +96,30 @@ Tam akış: [docs/DEV_SETUP.md](./docs/DEV_SETUP.md).
 ## Durum ve yol haritası
 
 - [x] **Faz 0** — Monorepo iskeleti
-- [x] **Faz 1 · W1–W3** — Odoo + modül iskeleti, gateway BFF ← *buradayız*
-- [ ] **Faz 2 · W4–W5** — Menü modeli, masa yönetimi, QR üretimi
-- [ ] **Faz 3 · W6–W7** — Sipariş akışı + yaşam döngüsü
-- [ ] **Faz 4 · W8–W9** — iyzico 3DS entegrasyonu
-- [ ] **Faz 5 · W10–W11** — e-Arşiv (fail-close politikası)
-- [ ] **Faz 6 · W12** — Mutfak: `pos_restaurant` KDS + print-bridge
-- [ ] **Faz 7 · W13–W14** — POS adapter'ları (Segment B)
+- [x] **Faz 1 · W1–W3** — Odoo + `hashtap_pos` / `hashtap_theme` iskeleti
+- [x] **Faz 2 · W4–W5** — Menü modeli, masa yönetimi, QR üretimi
+- [x] **Faz 3 · W6–W7** — Sipariş akışı + yaşam döngüsü
+- [x] **Faz 4 · W8–W9** — iyzico 3DS (mock + stub; sandbox sözleşme bağımlı)
+- [x] **Faz 5 · W10–W11** — e-Arşiv (mock + Foriba iskelet, **fail-close** aktif)
+- [x] **Faz 6a · W12** — KDS (Kitchen Display) — `/hashtap/kds` ← *buradayız*
+- [x] **Faz 7.5** — `hashtap_theme` white-label pass 1 (login + backend)
+- [ ] **Faz 6b** — Print-bridge (pilot tetikli, ESC/POS)
+- [ ] **Faz 7 · W13–W14** — POS adapter'ları (Segment B, partnership bağımlı)
 - [ ] **Faz 8 · W15–W16** — Multi-tenant provizyon
 - [ ] **Faz 9 · W17–W18** — Pilot hazırlık
 - [ ] **Faz 10 · W19–W22** — Pilot
 
-Haftalık iş paketleri + çıkış kriterleri: [docs/ROADMAP.md](./docs/ROADMAP.md).
+Haftalık iş paketleri + çıkış kriterleri: [docs/ROADMAP.md](./docs/ROADMAP.md) ·
+anlık satır-satır durum: [docs/STATUS.md](./docs/STATUS.md).
 
 ## Dokümantasyon
 
 | Doküman | İçerik |
 |---|---|
 | [PRODUCT.md](./docs/PRODUCT.md) | Vizyon, müşteri segmentleri (A/B/C), ticari model, MVP kapsamı |
+| [STATUS.md](./docs/STATUS.md) | **Anlık durum panosu** — ne yapıldı, ne kaldı, son değişiklikler |
 | [ROADMAP.md](./docs/ROADMAP.md) | W1–W22 fazları, iş paketleri, çıkış kriterleri |
+| [KDS.md](./docs/KDS.md) | Kitchen Display System — rotalar, state akışı, operatör flow |
 | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Topoloji, bileşen sorumlulukları, veri akışları, hata modları |
 | [MODULE_DESIGN.md](./docs/MODULE_DESIGN.md) | `hashtap_pos` iç yapısı — model, controller, servis |
 | [DATA_MODEL.md](./docs/DATA_MODEL.md) | Alan seviyesinde model tanımları, dış JSON şemaları |

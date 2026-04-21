@@ -1,1 +1,25 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hashtap_allergen_user,hashtap.allergen user,model_hashtap_allergen,base.group_user,1,0,0,0
+access_hashtap_allergen_system,hashtap.allergen system,model_hashtap_allergen,base.group_system,1,1,1,1
+access_hashtap_modifier_group_user,hashtap.modifier.group user,model_hashtap_modifier_group,base.group_user,1,0,0,0
+access_hashtap_modifier_group_system,hashtap.modifier.group system,model_hashtap_modifier_group,base.group_system,1,1,1,1
+access_hashtap_modifier_user,hashtap.modifier user,model_hashtap_modifier,base.group_user,1,0,0,0
+access_hashtap_modifier_system,hashtap.modifier system,model_hashtap_modifier,base.group_system,1,1,1,1
+access_hashtap_menu_category_user,hashtap.menu.category user,model_hashtap_menu_category,base.group_user,1,0,0,0
+access_hashtap_menu_category_system,hashtap.menu.category system,model_hashtap_menu_category,base.group_system,1,1,1,1
+access_hashtap_menu_item_user,hashtap.menu.item user,model_hashtap_menu_item,base.group_user,1,0,0,0
+access_hashtap_menu_item_system,hashtap.menu.item system,model_hashtap_menu_item,base.group_system,1,1,1,1
+access_hashtap_order_user,hashtap.order user,model_hashtap_order,base.group_user,1,1,0,0
+access_hashtap_order_system,hashtap.order system,model_hashtap_order,base.group_system,1,1,1,1
+access_hashtap_order_line_user,hashtap.order.line user,model_hashtap_order_line,base.group_user,1,1,0,0
+access_hashtap_order_line_system,hashtap.order.line system,model_hashtap_order_line,base.group_system,1,1,1,1
+access_hashtap_payment_provider_user,hashtap.payment.provider user,model_hashtap_payment_provider,base.group_user,1,0,0,0
+access_hashtap_payment_provider_system,hashtap.payment.provider system,model_hashtap_payment_provider,base.group_system,1,1,1,1
+access_hashtap_payment_method_user,hashtap.payment.method user,model_hashtap_payment_method,base.group_user,1,0,0,0
+access_hashtap_payment_method_system,hashtap.payment.method system,model_hashtap_payment_method,base.group_system,1,1,1,1
+access_hashtap_payment_transaction_user,hashtap.payment.transaction user,model_hashtap_payment_transaction,base.group_user,1,1,0,0
+access_hashtap_payment_transaction_system,hashtap.payment.transaction system,model_hashtap_payment_transaction,base.group_system,1,1,1,1
+access_hashtap_earsiv_provider_user,hashtap.earsiv.provider user,model_hashtap_earsiv_provider,base.group_user,1,0,0,0
+access_hashtap_earsiv_provider_system,hashtap.earsiv.provider system,model_hashtap_earsiv_provider,base.group_system,1,1,1,1
+access_hashtap_earsiv_receipt_user,hashtap.earsiv.receipt user,model_hashtap_earsiv_receipt,base.group_user,1,1,0,0
+access_hashtap_earsiv_receipt_system,hashtap.earsiv.receipt system,model_hashtap_earsiv_receipt,base.group_system,1,1,1,1

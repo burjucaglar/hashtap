@@ -95,23 +95,23 @@ Bu doküman HashTap'in prod altyapısının hedef topolojisini ve deploy pratikl
 ### 4.5 Nginx / Caddy
 - TLS sonlandırıcı + subdomain router.
 - Caddy tercihli: otomatik ACME TLS, basit config.
-- `*.hashtap.co` → `sirket.hashtap.co` için gateway; `r.hashtap.co` için gateway; admin tarafı IP whitelist.
+- `*.example.com` → `sirket.example.com` için gateway; `r.example.com` için gateway; admin tarafı IP whitelist.
 
 ## 5. TLS ve sertifika
 
-- Wildcard: `*.hashtap.co` — Let's Encrypt DNS-01 challenge (Cloudflare API ile).
+- Wildcard: `*.example.com` — Let's Encrypt DNS-01 challenge (Cloudflare API ile).
 - Yenileme: cert-manager / Caddy otomatik, 60 günde bir.
 - Fallback: SAN sertifikası per-tenant (wildcard limiti 100 SAN; MVP'de gereksiz).
 
 ## 6. DNS
 
-- `hashtap.co` — marketing sitesi (statik, CDN).
-- `*.hashtap.co` — wildcard, LB IP'sine.
-- `r.hashtap.co` — LB IP'sine (gateway).
-- `admin.hashtap.co` — LB IP'sine ama nginx seviyesinde IP whitelist.
-- `api.hashtap.co` — internal/dev için, prod'da kapalı.
+- `example.com` — marketing sitesi (statik, CDN).
+- `*.example.com` — wildcard, LB IP'sine.
+- `r.example.com` — LB IP'sine (gateway).
+- `admin.example.com` — LB IP'sine ama nginx seviyesinde IP whitelist.
+- `api.example.com` — internal/dev için, prod'da kapalı.
 
-MX kayıtları: gelen e-posta için (`support@hashtap.co`).
+MX kayıtları: gelen e-posta için (`support@example.com`).
 
 ## 7. Secret yönetimi
 

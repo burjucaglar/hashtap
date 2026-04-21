@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- /web/login sayfası — "Powered by Odoo" yazısını gizle, branding HashTap. -->
-    <template id="hashtap_login_layout" name="HashTap Login" inherit_id="web.login_layout">
-        <xpath expr="//div[hasclass('o_login_footer')]" position="replace">
-            <div class="o_login_footer text-center">
-                <small>© HashTap</small>
-            </div>
-        </xpath>
-    </template>
+    <!-- Login branding — SCSS ile yapılıyor:
+         * Logo: .oe_login_form::before (background-image)
+         * Footer "Powered by Odoo" gizli: a[href*="odoo.com"] { display: none }
+         * Cream arka plan + kart görünümü: login.scss
+         Odoo 17'nin view inheritance whitelist'i @alt/@href gibi öznitelikleri
+         kabul etmediği için xpath tabanlı patch yapmıyoruz. CSS ile
+         tamamen markamızı oturtuyoruz.
+    -->
 
 </odoo>

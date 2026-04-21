@@ -2,6 +2,24 @@
 
 Bu doküman Odoo 17 üstüne yazacağımız `hashtap_pos` modülünün iç yapısını tanımlar. Okunabilmesi için Odoo modül sisteminin temel kavramlarına (model, view, controller, manifest, hook) aşina olunduğu varsayılır; aşina değilseniz `DEV_SETUP.md` başlayış için yeterli.
 
+> **Güncel uygulama 2026-04-21.** Aşağıdaki yapı planlama dokümanıdır;
+> gerçek modüldeki bazı kararlar değişti. En önemli sapmalar:
+>
+> - **`pos.order` extend yerine ayrı `hashtap.order` modeli.** QR sipariş
+>   akışını Odoo'nun kasa akışından ayrı tutmak iş mantığını
+>   sadeleştirdi. `pos.order` köprüsü opsiyonel (§8.1, ileride).
+> - **Orthogonal state axes:** `state` / `payment_state` / `earsiv_state`
+>   üç bağımsız eksen (DATA_MODEL.md §2.7'de tek eksen önerilmişti).
+> - **`services/` yerine `adapters/` dizini** — ödeme ve e-Arşiv
+>   sağlayıcıları adapter pattern ile izole. `services/` dizini şu anda
+>   çoğunlukla boş; saf iş mantığı yardımcıları buraya taşınacak.
+> - **KDS:** `controllers/kds.py` + `views/hashtap_kds_*` — detay
+>   `docs/KDS.md`.
+> - **`queue_job` henüz dahil değil;** Faz 5 e-Arşiv retry'ları senkron +
+>   Odoo cron ile çözüldü. Yüke göre ileride eklenir.
+>
+> Tam anlık liste: `docs/STATUS.md`.
+
 ## 1. Amaç ve sınırlar
 
 **Amaç:**
@@ -80,7 +98,7 @@ odoo-addons/
     "category": "Point of Sale",
     "summary": "QR sipariş, mobil ödeme ve restoran operasyonu için HashTap genişletmesi",
     "author": "HashTap",
-    "website": "https://hashtap.co",
+    "website": "https://example.com",
     "license": "LGPL-3",
     "depends": [
         "base",

@@ -1,11 +1,27 @@
-// HashTap renk paleti. Bu dosya hem backend hem frontend asset bundle'ına
-// girer; Odoo'nun Bootstrap değişkenleri üzerine binmemek için `!default`
-// kullanmıyoruz, sadece brand token'ları tanımlıyoruz.
+// HashTap brand tokens. Hem backend hem frontend asset bundle'ına girer.
+// Bootstrap/Odoo değişkenlerini override etmekten kaçınıp kendi token
+// setimizi tanımlarız; override'lar overrides.scss içinden yapılır.
 
-$hashtap-primary:   #1f1b2e;  // koyu mor, placeholder
-$hashtap-accent:    #ff7a00;  // turuncu, placeholder
-$hashtap-bg:        #fafaf7;  // off-white
-$hashtap-text:      #222222;
+// ------- Primary palette ------------------------------------------------
+$hashtap-accent:        #ff7a00;   // sıcak turuncu — ana vurgu
+$hashtap-accent-dark:   #e06800;
+$hashtap-accent-soft:   rgba(255, 122, 0, 0.12);
 
-// Odoo'nun kendi değişkenleri ile uyum (o-brand-odoo vb.) WHITE_LABEL.md
-// içindeki checklist'ten geçildikçe burada override edilecek.
+$hashtap-ink:           #1f1b2e;   // koyu mor-siyah (text + navbar)
+$hashtap-ink-soft:      #3a3647;
+
+// ------- Neutral (cream stone) -----------------------------------------
+$hashtap-bg:            #faf8f2;   // sayfa arka planı
+$hashtap-panel:         #ffffff;   // kart/form panel
+$hashtap-border:        #e9e4d8;
+$hashtap-muted:         #8a8f9c;
+
+// ------- Status --------------------------------------------------------
+$hashtap-success:       #7cb083;
+$hashtap-warning:       #f4b860;
+$hashtap-danger:        #e55934;
+$hashtap-info:          #5b8ac0;
+
+// ------- Tipografi -----------------------------------------------------
+$hashtap-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+               "Helvetica Neue", Arial, sans-serif;

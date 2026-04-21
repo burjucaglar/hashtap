@@ -4,11 +4,15 @@ Bu doküman fazları ve her fazın çıktı kriterlerini kayıt altına alır. T
 
 Her faz için üç bölüm: **hedef, çıktı kriterleri, riskler**. Bir fazın çıktı kriterleri karşılanmadan bir sonrakine geçilmez.
 
+> **Anlık durum → `docs/STATUS.md`.** ROADMAP planı; STATUS gerçeği
+> anlatır. Faz bitti işareti ✅ burada göstermelik tutulur; asıl
+> güncellik STATUS'tadır.
+
 ## Faz 0 — İskele (W0, bitti)
 
 Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında monorepo iskelesi, TS/Node tarafında `customer-pwa` + gateway API hazır. Odoo-öncesi plana göre yazıldı; dokümantasyon faz'ı bittikten sonra gateway ve PWA sadeleştirilecek.
 
-## Faz 1 — Odoo temeli + `hashtap_pos` iskelesi (W1–W3)
+## Faz 1 — Odoo temeli + `hashtap_pos` iskelesi (W1–W3) ✅
 
 **Hedef:** Lokal bir Odoo 17 CE instance'ı ayakta, `hashtap_pos` modülü yüklü, "HashTap" markasıyla giriş ekranı görünüyor.
 
@@ -32,7 +36,7 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 - Odoo theme sistemi 17'de değişmiş olabilir; beklenenden daha karmaşık.
 - Docker image'lar (odoo:17) platformlarda (ARM64) farklı davranabilir — pilot ekip M1 Mac + Linux ARM çalıştırıyor.
 
-## Faz 2 — Menü & masa veri modeli (W4–W5)
+## Faz 2 — Menü & masa veri modeli (W4–W5) ✅
 
 **Hedef:** `hashtap_pos` içinde menü ve masa modelleri tanımlı, Odoo panelinden yönetilebilir. REST endpoint'i üzerinden `customer-pwa` menü çekebiliyor.
 
@@ -57,7 +61,7 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 - Odoo i18n modeli "translations table" ile çalışır; tek formda iki dili birlikte düzenletmek custom view gerektirebilir.
 - Public endpoint auth'suz; rate-limit gerekli (MVP sonrası nginx seviyesi, MVP'de controller'da).
 
-## Faz 3 — Sipariş akışı (W6–W7)
+## Faz 3 — Sipariş akışı (W6–W7) ✅
 
 **Hedef:** Müşteri PWA'dan sepet oluşturup sipariş gönderiyor; Odoo'da bir `pos.order` açılıyor; restoran panelinde görünüyor.
 
@@ -81,7 +85,7 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 - Odoo'nun `pos.order` workflow'u opinionated; bizim "paid but not in kitchen" ara durumumuz standart Odoo akışına uymuyor → custom field + custom button.
 - Polling yerine WebSocket/longpoll isteği çıkabilir — faz içinde karar, MVP için polling yeter.
 
-## Faz 4 — iyzico ödeme (W8–W9)
+## Faz 4 — iyzico ödeme (W8–W9) ✅ (mock + stub)
 
 **Hedef:** Müşteri 3DS'le ödüyor, sipariş `paid` oluyor, restoran banka hesabına para akıyor (test ortamı).
 
@@ -106,7 +110,7 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 - Apple Pay domain verification ve merchant kurulumu zaman alır; iş paketi 3 günden taşabilir.
 - iyzico facilitator sözleşmesi için hukuki ön-adım gerekebilir (prod için; sandbox'ta değil).
 
-## Faz 5 — e-Arşiv (W10–W11)
+## Faz 5 — e-Arşiv (W10–W11) ✅ (mock, Foriba iskelet)
 
 **Hedef:** Sipariş ödendiğinde otomatik fiş kesiliyor; kesilemezse sipariş mutfağa **gönderilmiyor** (fail-close).
 
@@ -129,9 +133,40 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 - GİB'in e-Arşiv test ortamı pratikte istikrarsız; lokal mock tabanlı test iskelesi kur.
 - Fail-close politikası pilot müşterinin hoşuna gitmeyebilir ("ödeme aldım, niye mutfağa gitmiyor?") — müşteri eğitimi gerekli.
 
-## Faz 6 — Mutfak çıktısı (W12)
+## Faz 6a — KDS (Kitchen Display) ✅
 
-**Hedef:** Ödenmiş + fişi kesilmiş sipariş mutfağa basılıyor. Print-bridge (Pi + ESC/POS) veya Odoo'nun kendi mutfak ekranı opsiyonel.
+**Hedef:** Mutfak için tam ekran, HashTap markalı canlı sipariş paneli.
+Pilot restoranda tablet/TV üzerinde çalışır. Detay: `docs/KDS.md`.
+
+### İş paketleri (yapıldı)
+
+| İş | Çıktı |
+|---|---|
+| `hashtap.order` state eksenine `preparing` ve `kitchen_fired_at/ready_at` alanları | `models/hashtap_order.py` |
+| `GET /hashtap/kds` sayfası + polling endpoint'i | `controllers/kds.py` |
+| 3-kolon UI (Yeni / Hazırlanıyor / Hazır), dark theme, touch buttons | `static/src/css/kds.css` |
+| 3sn polling + yeni sipariş beep'i + geri al | `static/src/js/kds.js` |
+| Odoo menü link'i ("HashTap → Operasyon → Mutfak Ekranı") | `views/hashtap_kds_menu.xml` |
+
+### Çıktı kriterleri (karşılandı)
+- [x] Mutfağa düşen sipariş 3sn içinde KDS'te "Yeni" kolonunda görünüyor.
+- [x] "Başla / Hazır / Servis edildi" butonlarıyla durum ilerliyor, KDS kartı kolonlar arası kayıyor.
+- [x] Servis edilen sipariş KDS'ten düşüyor.
+- [x] Bekleme süresine göre renk uyarısı (normal / 10dk / 20dk+).
+
+### Gelecek iyileştirmeler (pilot bağımlı)
+- Çoklu istasyon (soğuk/sıcak mutfak ayrı KDS).
+- Longpolling (`bus.bus`) — 50+ masa/dk yükünde.
+- Restorana göre süre eşiği (res.config.settings).
+
+## Faz 6b — Print-bridge (pilot tetiklemeli) ⏳
+
+**Hedef:** Termal (ESC/POS) yazıcıya fiziki fiş çıkışı. Pi veya local
+agent köprü.
+
+**Ne zaman başlatılır:** Pilot restoranda termal yazıcı kullanılacağı
+kesinleştiğinde. Mutfak akışı şu an KDS ile tam çalışıyor; yazıcı
+operasyonel tercih meselesi.
 
 ### İş paketleri
 
@@ -139,8 +174,8 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 |---|---|
 | Print-bridge WS protokolü: Odoo'dan print-bridge'e event emitting | 2 gün |
 | Print-bridge tarafında event al → ESC/POS yazıcıya bas | 2 gün |
-| Alternatif: Odoo'nun `pos_restaurant` KDS'sini white-label et | 2 gün |
 | "Basıldı" onayının Odoo'ya dönüşü, retry mantığı | 2 gün |
+| Local queue + offline dayanıklılık | 1 gün |
 
 ### Çıktı kriterleri
 - [ ] Test masasında yazıcıdan gerçek fiş çıkıyor.
@@ -149,6 +184,30 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 
 ### Riskler
 - Pi tarafında ağ kesintisi senaryoları restoranlarda yaygın — local queue dayanıklı olmalı.
+- Termal yazıcı markaları uyum farkları (Epson TM-T20, Star TSP100...). Öncelikle pilotun aldığı modele odaklan.
+
+## Faz 7.5 — `hashtap_theme` doldurma (white-label pass 1) ✅
+
+**Hedef:** Restoran sahibi / personeli Odoo arayüzüne bakarken "HashTap
+kullanıyorum" desin; ilk vuruşu CSS ile yap, XML inheritance'ı sadece
+whitelist'in izin verdiği noktalarda kullan. Detay: `docs/WHITE_LABEL.md`.
+
+### Yapıldı
+- SCSS palet ve backend overrides (navbar, buton, form, odoo.com
+  link'lerini gizle).
+- Login / signup / reset şifre ekranları: cream arka plan, HashTap
+  logosu CSS background-image ile, tagline `::before` ile.
+- Tarayıcı sekme başlığı "HashTap".
+- Odoo 17 view inheritance whitelist (sadece `@id/@name/@class/@string`)
+  tuzağı tecrübe edildi ve dokümante edildi (WHITE_LABEL §4.1).
+
+### Kalan white-label işi (Faz 8/9 içinde)
+- App switcher ve `ir.ui.menu` temizliği (Discuss / Website gibi
+  gereksiz root menüler gizlenmeli).
+- PDF şablonları (fiş / fatura) — `report.internal.layout` override.
+- Sistem mail şablonları.
+- 404/500 hata sayfaları.
+- Help → "HashTap Hakkında".
 
 ## Faz 7 — POS adapter (Segment B) (W13–W14)
 
@@ -185,7 +244,7 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 
 ### Çıktı kriterleri
 - [ ] Tek bir admin komutu ile 60 dakikanın altında yeni kiracı açılıyor.
-- [ ] `sirket.hashtap.co` DNS + SSL otomatik yapılandırılıyor.
+- [ ] `sirket.example.com` DNS + SSL otomatik yapılandırılıyor.
 - [ ] Suspend edilen kiracıya trafik düşüyor ama veri silinmiyor.
 
 ### Riskler
@@ -228,18 +287,22 @@ Bu dokümantasyon hazırlanırken tamamlandı. `/home/hashtag/hashtap/` altında
 
 ## Özet çizelgesi
 
-| Faz | Hafta | Başlık |
-|---|---|---|
-| 0 | W0 | İskele + doküman |
-| 1 | W1–W3 | Odoo + `hashtap_pos` iskele |
-| 2 | W4–W5 | Menü & masa modeli |
-| 3 | W6–W7 | Sipariş akışı |
-| 4 | W8–W9 | iyzico |
-| 5 | W10–W11 | e-Arşiv |
-| 6 | W12 | Mutfak çıktısı |
-| 7 | W13–W14 | POS adapter (Segment B) |
-| 8 | W15–W16 | Multi-tenant provisioning |
-| 9 | W17–W18 | Pilot hazırlık |
-| 10 | W19–W22 | Pilot |
+| Faz | Hafta | Başlık | Durum |
+|---|---|---|---|
+| 0 | W0 | İskele + doküman | ✅ |
+| 1 | W1–W3 | Odoo + `hashtap_pos` iskele | ✅ |
+| 2 | W4–W5 | Menü & masa modeli | ✅ |
+| 3 | W6–W7 | Sipariş akışı | ✅ |
+| 4 | W8–W9 | iyzico (mock + stub) | ✅ |
+| 5 | W10–W11 | e-Arşiv (mock + Foriba iskelet) | ✅ |
+| 6a | W12 | KDS (Kitchen Display) | ✅ |
+| 7.5 | W12 | `hashtap_theme` doldurma (pass 1) | ✅ |
+| 6b | pilot tetikli | Print-bridge (ESC/POS) | ⏳ |
+| 7 | W13–W14 | POS adapter (Segment B) | ⏳ partnership bağımlı |
+| 8 | W15–W16 | Multi-tenant provisioning | ⏳ |
+| 9 | W17–W18 | Pilot hazırlık | ⏳ |
+| 10 | W19–W22 | Pilot | ⏳ |
 
 Toplam tahmini yol: **~22 hafta**. Bu bir çalışan bir buçuk mühendis varsayımı; ekip büyürse sıkışır, tek başına çalışırsak %40 gevşek tutulmalı.
+
+Anlık yapılmış / sıradaki ince liste: `docs/STATUS.md`.

@@ -17,7 +17,7 @@ Segment B (mevcut POS'u olan restoran) akışında adapter `pos_restaurant`'ın 
 ## Env değişkenleri
 
 ```
-HASHTAP_API_WS=wss://api.hashtap.co/v1/print-bridge
+HASHTAP_API_WS=wss://api.example.com/v1/print-bridge
 PRINT_BRIDGE_TOKEN=<tenant token>
 PRINTER_INTERFACE=tcp://192.168.1.100:9100
 ```

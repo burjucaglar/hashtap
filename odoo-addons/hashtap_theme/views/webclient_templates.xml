@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Browser tab title: "HashTap" yerine "Odoo". -->
+    <!-- Browser tab title: "HashTap" -->
     <template id="hashtap_title" name="HashTap Title" inherit_id="web.layout">
         <xpath expr="//title" position="replace">
             <title>HashTap</title>
         </xpath>
     </template>
 
-    <!-- Favicon. İleride static/src/img/favicon.ico koyunca buraya eklenir. -->
-
-    <!-- Navbar logosu — placeholder. img dosyası eklendikten sonra aktif edilecek.
-         Şimdilik CSS class'ı ekleyerek SCSS tarafında background-image ile veriyoruz. -->
-    <template id="hashtap_navbar_brand" name="HashTap Navbar Brand" inherit_id="web.menu_secondary">
-        <xpath expr="//nav" position="attributes">
-            <attribute name="class" add="o_hashtap_navbar" separator=" "/>
-        </xpath>
-    </template>
+    <!-- Favicon: Odoo'nun view inheritance whitelist'i @rel / @href
+         öznitelikleri kabul etmediği için xpath ile override edilemiyor.
+         Şirket logosunu Ayarlar → Şirketler altında HashTap logosu olarak
+         ayarlamak /web ve /web/login çevresinde HashTap mark'ını gösterir.
+    -->
 
 </odoo>

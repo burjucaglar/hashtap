@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hashtap_order_tree" model="ir.ui.view">
+        <field name="name">hashtap.order.tree</field>
+        <field name="model">hashtap.order</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state=='placed'"
+                  decoration-warning="state in ('kitchen_sent','preparing')"
+                  decoration-success="state in ('ready','served')"
+                  decoration-muted="state=='cancelled'">
+                <field name="name"/>
+                <field name="create_date"/>
+                <field name="table_id"/>
+                <field name="state"/>
+                <field name="total" sum="Toplam" widget="monetary"/>
+                <field name="currency_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_order_form" model="ir.ui.view">
+        <field name="name">hashtap.order.form</field>
+        <field name="model">hashtap.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_mark_kitchen_sent"
+                            type="object"
+                            string="Mutfağa Gönder"
+                            class="btn-primary"
+                            invisible="state not in ('placed','paid')"/>
+                    <button name="action_mark_preparing"
+                            type="object"
+                            string="Hazırlanıyor"
+                            invisible="state != 'kitchen_sent'"/>
+                    <button name="action_mark_ready"
+                            type="object"
+                            string="Hazır"
+                            invisible="state not in ('kitchen_sent','preparing')"/>
+                    <button name="action_mark_served"
+                            type="object"
+                            string="Servis edildi"
+                            invisible="state not in ('kitchen_sent','preparing','ready')"/>
+                    <button name="action_cancel"
+                            type="object"
+                            string="İptal"
+                            invisible="state in ('served','cancelled')"
+                            confirm="Sipariş iptal edilsin mi?"/>
+                    <button name="action_mark_paid_offline"
+                            type="object"
+                            string="Kasada Ödendi"
+                            class="btn-success"
+                            invisible="payment_state == 'paid' or payment_method_code not in ('cash','pay_at_counter')"/>
+                    <button name="action_retry_earsiv"
+                            type="object"
+                            string="Fişi Yeniden Dene"
+                            class="btn-warning"
+                            invisible="earsiv_state != 'failed'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="placed,kitchen_sent,preparing,ready,served"/>
+                    <field name="payment_state" widget="statusbar"
+                           statusbar_visible="unpaid,pending,paid"/>
+                    <field name="earsiv_state" widget="statusbar"
+                           statusbar_visible="pending,issued"/>
+                </header>
+                <sheet>
+                    <h1><field name="name" readonly="1"/></h1>
+                    <group>
+                        <group>
+                            <field name="table_id" readonly="1"/>
+                            <field name="table_slug" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="subtotal" widget="monetary" readonly="1"/>
+                            <field name="total" widget="monetary" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="payment_method_code" readonly="1"/>
+                            <field name="paid_amount" widget="monetary" readonly="1"/>
+                            <field name="pos_order_id" readonly="1"/>
+                            <field name="require_receipt"/>
+                            <field name="earsiv_state" readonly="1"/>
+                            <field name="earsiv_receipt_id" readonly="1"/>
+                            <field name="is_earsiv_blocked" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kalemler">
+                            <field name="line_ids" readonly="1">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="item_name"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price" widget="monetary"/>
+                                    <field name="subtotal" widget="monetary" sum="Ara Toplam"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notlar">
+                            <field name="customer_note" readonly="1" placeholder="Müşteri notu..."/>
+                        </page>
+                        <page string="Ödeme İşlemleri">
+                            <field name="payment_transaction_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="create_date"/>
+                                    <field name="provider_id"/>
+                                    <field name="method_code"/>
+                                    <field name="amount_kurus"/>
+                                    <field name="state"
+                                           decoration-success="state=='captured'"
+                                           decoration-warning="state=='pending'"
+                                           decoration-danger="state in ('failed','cancelled')"/>
+                                    <field name="provider_ref"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="e-Arşiv Fişleri">
+                            <field name="earsiv_receipt_ids" readonly="1">
+                                <tree decoration-success="state=='issued'"
+                                      decoration-danger="state=='failed'">
+                                    <field name="name"/>
+                                    <field name="create_date"/>
+                                    <field name="provider_id"/>
+                                    <field name="state"/>
+                                    <field name="ettn"/>
+                                    <field name="retry_count"/>
+                                    <field name="error_code"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hashtap_order_search" model="ir.ui.view">
+        <field name="name">hashtap.order.search</field>
+        <field name="model">hashtap.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="table_id"/>
+                <field name="table_slug"/>
+                <filter name="state_placed" string="Yeni" domain="[('state','=','placed')]"/>
+                <filter name="state_kitchen" string="Mutfakta" domain="[('state','=','kitchen_sent')]"/>
+                <filter name="state_ready" string="Hazır" domain="[('state','=','ready')]"/>
+                <separator/>
+                <filter name="earsiv_failed" string="Fiş Başarısız"
+                        domain="[('earsiv_state','=','failed')]"/>
+                <filter name="earsiv_blocked" string="Fiş Bekliyor"
+                        domain="[('is_earsiv_blocked','=',True)]"/>
+                <filter name="today" string="Bugün"
+                        domain="[('create_date','&gt;=',(context_today()).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Grupla">
+                    <filter name="group_state" string="Durum" context="{'group_by':'state'}"/>
+                    <filter name="group_table" string="Masa" context="{'group_by':'table_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hashtap_orders" model="ir.actions.act_window">
+        <field name="name">QR Siparişleri</field>
+        <field name="res_model">hashtap.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_today': 1, 'search_default_state_placed': 1}</field>
+    </record>
+
+    <menuitem
+        id="menu_hashtap_orders"
+        name="QR Siparişleri"
+        parent="menu_hashtap_operations"
+        action="action_hashtap_orders"
+        sequence="5"/>
+
+</odoo>

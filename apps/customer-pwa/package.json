@@ -11,9 +11,13 @@
   },
   "dependencies": {
     "@hashtap/shared": "*",
+    "@tailwindcss/vite": "^4.2.3",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.38.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.26.0",
+    "tailwindcss": "^4.2.3",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

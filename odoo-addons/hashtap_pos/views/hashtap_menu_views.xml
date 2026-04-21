@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============ Kategori ============ -->
+    <record id="view_hashtap_menu_category_tree" model="ir.ui.view">
+        <field name="name">hashtap.menu.category.tree</field>
+        <field name="model">hashtap.menu.category</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name_tr"/>
+                <field name="name_en"/>
+                <field name="available_from" widget="float_time" optional="hide"/>
+                <field name="available_to" widget="float_time" optional="hide"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_menu_category_form" model="ir.ui.view">
+        <field name="name">hashtap.menu.category.form</field>
+        <field name="model">hashtap.menu.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="icon" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name_tr" placeholder="Kategori adı (TR)"/></h1>
+                        <h2><field name="name_en" placeholder="Name (EN)"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Servis Saatleri">
+                            <field name="available_from" widget="float_time"/>
+                            <field name="available_to" widget="float_time"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kalemler" name="items">
+                            <field name="item_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name_tr"/>
+                                    <field name="name_en"/>
+                                    <field name="price_display"/>
+                                    <field name="active"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_menu_category" model="ir.actions.act_window">
+        <field name="name">Kategoriler</field>
+        <field name="res_model">hashtap.menu.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============ Kalem ============ -->
+    <record id="view_hashtap_menu_item_tree" model="ir.ui.view">
+        <field name="name">hashtap.menu.item.tree</field>
+        <field name="model">hashtap.menu.item</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="category_id"/>
+                <field name="name_tr"/>
+                <field name="name_en"/>
+                <field name="price_display"/>
+                <field name="is_featured"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_menu_item_form" model="ir.ui.view">
+        <field name="name">hashtap.menu.item.form</field>
+        <field name="model">hashtap.menu.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="image" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name_tr" placeholder="Menü Adı (TR)"/></h1>
+                        <h2><field name="name_en" placeholder="Menu Name (EN)"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="product_tmpl_id"/>
+                            <field name="category_id"/>
+                            <field name="price_display"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="is_featured"/>
+                            <field name="dietary_tag"/>
+                            <field name="prep_time_minutes"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Açıklama" name="description">
+                            <group>
+                                <field name="description_tr" nolabel="1" placeholder="TR açıklama"/>
+                                <field name="description_en" nolabel="1" placeholder="EN description"/>
+                            </group>
+                        </page>
+                        <page string="Alerjenler" name="allergens">
+                            <field name="allergen_ids" widget="many2many_tags"/>
+                        </page>
+                        <page string="Modifier Grupları" name="modifiers">
+                            <field name="modifier_group_ids">
+                                <tree>
+                                    <field name="name_tr"/>
+                                    <field name="name_en"/>
+                                    <field name="min_select"/>
+                                    <field name="max_select"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_menu_item" model="ir.actions.act_window">
+        <field name="name">Menü Kalemleri</field>
+        <field name="res_model">hashtap.menu.item</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============ Modifier Group ============ -->
+    <record id="view_hashtap_modifier_group_tree" model="ir.ui.view">
+        <field name="name">hashtap.modifier.group.tree</field>
+        <field name="model">hashtap.modifier.group</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name_tr"/>
+                <field name="name_en"/>
+                <field name="min_select"/>
+                <field name="max_select"/>
+                <field name="is_required"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hashtap_modifier_group_form" model="ir.ui.view">
+        <field name="name">hashtap.modifier.group.form</field>
+        <field name="model">hashtap.modifier.group</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name_tr" placeholder="Grup Adı (TR)"/></h1>
+                        <h2><field name="name_en" placeholder="Group Name (EN)"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="min_select"/>
+                            <field name="max_select"/>
+                            <field name="is_required"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Seçenekler" name="modifiers">
+                            <field name="modifier_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name_tr"/>
+                                    <field name="name_en"/>
+                                    <field name="price_delta"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="linked_product_id" optional="hide"/>
+                                    <field name="active"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hashtap_modifier_group" model="ir.actions.act_window">
+        <field name="name">Modifier Grupları</field>
+        <field name="res_model">hashtap.modifier.group</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============ Allergen ============ -->
+    <record id="view_hashtap_allergen_tree" model="ir.ui.view">
+        <field name="name">hashtap.allergen.tree</field>
+        <field name="model">hashtap.allergen</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="code"/>
+                <field name="name_tr"/>
+                <field name="name_en"/>
+                <field name="icon"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_hashtap_allergen" model="ir.actions.act_window">
+        <field name="name">Alerjenler</field>
+        <field name="res_model">hashtap.allergen</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- ============ Menu items ============ -->
+    <menuitem id="menu_hashtap_catalog_categories"
+              name="Kategoriler"
+              parent="menu_hashtap_catalog"
+              action="action_hashtap_menu_category"
+              sequence="10"/>
+
+    <menuitem id="menu_hashtap_catalog_items"
+              name="Menü Kalemleri"
+              parent="menu_hashtap_catalog"
+              action="action_hashtap_menu_item"
+              sequence="20"/>
+
+    <menuitem id="menu_hashtap_catalog_modifiers"
+              name="Modifier Grupları"
+              parent="menu_hashtap_catalog"
+              action="action_hashtap_modifier_group"
+              sequence="30"/>
+
+    <menuitem id="menu_hashtap_catalog_allergens"
+              name="Alerjenler"
+              parent="menu_hashtap_catalog"
+              action="action_hashtap_allergen"
+              sequence="40"/>
+
+</odoo>

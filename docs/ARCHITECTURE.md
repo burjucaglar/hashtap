@@ -79,7 +79,7 @@ Bu doküman projenin teknik büyük resmini kayıt altına alır. Faz 0'da TS/No
 - **Dil/teknik:** TypeScript, Fastify, Postgres (gateway'in kendi küçük DB'si — tenant registry için), Redis (rate limit, iyzico state).
 - **Sorumluluğu:**
   - Public internet'in tek giriş kapısı.
-  - `r.hashtap.co` (müşteri) ve `sirket.hashtap.co` (restoran paneli) trafiğini doğru Odoo instance'ına yönlendirme.
+  - `r.example.com` (müşteri) ve `sirket.example.com` (restoran paneli) trafiğini doğru Odoo instance'ına yönlendirme.
   - Rate limiting (tenant başı, IP başı).
   - iyzico 3DS akışının orkestrasyonu: PWA'nın görmemesi gereken secret'lar gateway'de.
   - Webhook alıcı: iyzico callback, e-Arşiv callback.
@@ -131,13 +131,13 @@ Bu doküman projenin teknik büyük resmini kayıt altına alır. Faz 0'da TS/No
 - Her kiracı için bir Postgres DB (`tenant_abc123`).
 - Her kiracı için bir Odoo worker container'ı veya aynı worker pool'undan seçilen bir instance, DB-bazlı route.
 - Gateway'in kendi DB'sinde sadece tenant registry (slug → DB/host mapping) + auth.
-- Müşteri PWA ve restoran paneli subdomain ile ayrılır: `sirket.hashtap.co`.
+- Müşteri PWA ve restoran paneli subdomain ile ayrılır: `sirket.example.com`.
 - Veri sızıntısı saldırı yüzeyi: sadece gateway'in routing kodu + Odoo'nun DB seçim mantığı. Kiracı kodu hiçbir yerde başka kiracı DB'sine erişemez.
 
 ## 4. Veri akışları (mutlu yol)
 
 ### 4.1 Menü çekme
-1. PWA: `GET r.hashtap.co/v1/menu/<tenant_slug>/<table_slug>`
+1. PWA: `GET r.example.com/v1/menu/<tenant_slug>/<table_slug>`
 2. Gateway: tenant registry'den Odoo host bul → forward.
 3. Odoo (`hashtap_pos`): menü sorgula, i18n ile döndür.
 4. Gateway: cache (Redis, 60s), PWA'ya dön.
@@ -163,7 +163,7 @@ Bu doküman projenin teknik büyük resmini kayıt altına alır. Faz 0'da TS/No
    b. Odoo instance'ına DB oluşturma komutu gönder.
    c. `hashtap_pos` + `hashtap_theme` + gerekli Odoo modüllerini yükle.
    d. Default admin kullanıcı oluştur, şifreyi e-postayla gönder.
-   e. DNS kayıt ekle (`sirket.hashtap.co`).
+   e. DNS kayıt ekle (`sirket.example.com`).
    f. SSL sertifikası al (cert-manager / Let's Encrypt).
    g. Tenant registry'ye kayıt düş.
 
